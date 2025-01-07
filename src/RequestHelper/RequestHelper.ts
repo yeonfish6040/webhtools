@@ -104,7 +104,8 @@ export class RequestHelper {
 
   // EXECUTES =============================================================================
   async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    const url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
+    let url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
+    if (url.endsWith("/")) url = url.substring(0, url.length-1);
 
     const requestContentType: ContentType | string = this.CONTENT_TYPE ? this.CONTENT_TYPE : "application/json";
 
