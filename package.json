@@ -1,0 +1,28 @@
+{
+  "name": "webhtools",
+  "version": "0.0.1",
+  "description": "webhacking tools for hackers",
+  "main": "lib/index.js",
+  "scripts": {
+    "clean": "rm -rf ./lib",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "pretest": "npm run build",
+    "test": "node ./lib/test/index.js",
+    "prerelease": "npm run build",
+    "release": "npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yeonfish6040/webhtools.git"
+  },
+  "author": "yeonfish6040 <yeonfish6040@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yeonfish6040/webhtools/issues"
+  },
+  "homepage": "https://github.com/yeonfish6040/webhtools#readme",
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
