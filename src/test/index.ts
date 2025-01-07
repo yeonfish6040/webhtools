@@ -1,8 +1,9 @@
-import {CookieBuilderSpec} from "./CookieBuilder.spec";
 import {Tester} from "./types";
+import {CookieBuilderSpec} from "./CookieBuilder.spec";
 import {RequestHelperSpec} from "./RequestHelper.spec";
+import {ProblemHelperSpec} from "./ProblemHelper.spec";
 
-const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec()];
+const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec(), new ProblemHelperSpec()];
 
 (async () => {
   let total = targetTests.length;
@@ -13,12 +14,13 @@ const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec()]
       const testResult: any = await testClass.run();
       if (testResult !== testClass.expected) {
         fail++;
-        throw Error(`Test failed: ${testClass.name}`);
+        throw Error(`Test failed: ${testClass.name}\nResult: ${testResult}`);
       } else {
         success++;
         console.log(`Test passed: ${testClass.name}`);
       }
     } catch (e) {
+      fail++;
       console.error(e);
     }
   });
@@ -28,6 +30,6 @@ const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec()]
   if (total === success) {
     console.log("All test has executed successfully.");
   }else {
-    console.log("Test failed.")
+    throw Error("Test failed.");
   }
 })();

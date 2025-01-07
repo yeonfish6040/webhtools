@@ -1,6 +1,6 @@
 import {
   ContentType,
-  HttpAuthorize,
+  HttpAuthorize, HttpAuthorizeSchema,
   HttpHeader,
   HttpHeaderObject,
   HttpRequestBody,
@@ -38,6 +38,10 @@ export class RequestHelper {
     return Object.fromEntries([...this.CUSTOM_HEADERS]);
   }
 
+  getAuth(): HttpAuthorize | null {
+    return this.AUTHORIZATION;
+  }
+
   // SETTER ===============================================================================
   setBaseUrl(baseURL: string): RequestHelper  {
     this.BASE_URL = baseURL;
@@ -69,8 +73,37 @@ export class RequestHelper {
     return this;
   }
 
+  setAuth(schema: HttpAuthorizeSchema, value: string): RequestHelper {
+    this.AUTHORIZATION = {
+      schema,
+      value
+    }
+    return this;
+  }
+
+  setBasicAuth(username: string, password: string): RequestHelper {
+    const authString = Buffer.from(`${username}:${password}`).toString("base64");
+    this.AUTHORIZATION = {
+      schema: "Basic",
+      value: authString,
+    }
+    return this;
+  }
+
+  setBearerAuth(token: string) {
+    this.AUTHORIZATION = {
+      schema: "Bearer",
+      value: token,
+    }
+  }
+
+  resetAuth(): RequestHelper {
+    this.AUTHORIZATION = null;
+    return this;
+  }
+
   // EXECUTES =============================================================================
-  async sendRequest<t>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+  async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     const url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
 
     const requestContentType: ContentType | string = this.CONTENT_TYPE ? this.CONTENT_TYPE : "application/json";
@@ -78,6 +111,8 @@ export class RequestHelper {
     // merge fixed headers(permanent header) and specific headers(one-time header)
     const requestHeader = new Headers(this.getHeaders());
     requestHeader.set("Content-Type", requestContentType);
+    if (this.AUTHORIZATION)
+      requestHeader.set("Authorization", `${this.AUTHORIZATION.schema} ${this.AUTHORIZATION.value}`);
     if (customHeader) {
       Object.entries(customHeader).forEach(([k, v]) => {
         requestHeader.set(k, v);
@@ -85,9 +120,18 @@ export class RequestHelper {
     }
 
     let requestBody = "";
-    if (typeof body !== "string") {
-
-    }
+    if (body && typeof body !== "string") {
+      switch (this.CONTENT_TYPE) {
+        case "application/json":
+          requestBody = JSON.stringify(body);
+          break;
+        case "application/x-www-form-urlencoded":
+          requestBody = Object.entries(body).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+          break;
+        default:
+          requestBody = body.toString();
+      }
+    }else if (body) requestBody = body;
 
     const res = await fetch(url, {
       method,
@@ -118,23 +162,23 @@ export class RequestHelper {
     }
   }
 
-  async get<t>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t | any>> {
+  async get<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("GET", path, undefined, customHeader);
   }
 
-  async post<t>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t | any>> {
+  async post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("GET", path, body, customHeader);
   }
 
-  async put<t>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t | any>> {
+  async put<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("PUT", path, undefined, customHeader);
   }
 
-  async patch<t>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t | any>> {
+  async patch<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("PATCH", path, undefined, customHeader);
   }
 
-  async delete<t>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t | any>> {
+  async delete<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("DELETE", path, undefined, customHeader);
   }
 }

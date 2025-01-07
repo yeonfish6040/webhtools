@@ -1,21 +1,30 @@
-import {RequestHelper} from "../";
+import {CookieBuilder, RequestHelper} from "../";
 import {Tester} from "./types";
 
 export class RequestHelperSpec implements Tester {
   name = "RequestHelperSpec";
 
-  expected = "The Shawshank Redemption";
+  expected = `["The Shawshank Redemption",true]`;
 
   async run(): Promise<any> {
-    const rh = new RequestHelper("https://dummyapi.online/api");
-    const res = await rh.sendRequest<{
+    const results = [];
+
+    const rh1 = new RequestHelper("https://dummyapi.online/api");
+    const res1 = await rh1.get<{
       id: number,
       movie: string,
       rating: number,
       image: string,
       imdb_url: string,
-    }>("GET", "/movies/1");
+    }>("/movies/1");
 
-    return res.json?.movie;
+    const rh2 = new RequestHelper("https://httpbin.org/basic-auth/foo/bar");
+    rh2.setBasicAuth("foo", "bar");
+    const res2 = await rh2.get<{
+      authenticated: boolean,
+      user: string
+    }>("/");
+
+    return JSON.stringify([res1.json?.movie, res2.json?.authenticated]);
   }
 }

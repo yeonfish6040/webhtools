@@ -9,7 +9,7 @@
     "build": "tsc",
     "pretest": "npm run build",
     "test": "node ./lib/test/index.js",
-    "prerelease": "npm run build",
+    "prerelease": "npm run test",
     "release": "npm publish"
   },
   "repository": {
@@ -23,6 +23,11 @@
   },
   "homepage": "https://github.com/yeonfish6040/webhtools#readme",
   "devDependencies": {
+    "@types/node": "^22.10.5",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "base85": "^3.1.0",
+    "read": "^4.0.0"
   }
 }
