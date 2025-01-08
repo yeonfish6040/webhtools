@@ -104,11 +104,13 @@ export class RequestHelper {
 
   // EXECUTES =============================================================================
   async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+    // build url
     let url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
     if (url.endsWith("/")) url = url.substring(0, url.length-1);
 
     const requestContentType: ContentType | string = this.CONTENT_TYPE ? this.CONTENT_TYPE : "application/json";
 
+    // header priority (one-time > custom setters(auth, content-type..) > fixed headers)
     // merge fixed headers(permanent header) and specific headers(one-time header)
     const requestHeader = new Headers(this.getHeaders());
     requestHeader.set("Content-Type", requestContentType);
@@ -122,7 +124,7 @@ export class RequestHelper {
 
     let requestBody = "";
     if (body && typeof body !== "string") {
-      switch (this.CONTENT_TYPE) {
+      switch (requestContentType) {
         case "application/json":
           requestBody = JSON.stringify(body);
           break;
@@ -136,19 +138,22 @@ export class RequestHelper {
 
     const res = await fetch(url, {
       method,
-      cache: "no-cache",
       headers: requestHeader,
       body: requestBody ? requestBody : undefined,
+      cache: "no-cache"
     });
 
     let bytes: Uint8Array | null;
     let text: string | null;
     let json: t | null;
     let formData: FormData | null;
+    const formRegex = /((?<group>(?<key>[^=&]+)=(?<value>[^=&]+))&?)/g
     try { bytes = await res.bytes(); } catch (e) { bytes = null }
     try { if (bytes !== null) text = new TextDecoder().decode(bytes); else throw Error() } catch (e) { text = null }
-    try { if (text !== null) json = JSON.parse(text) as t; else throw Error() } catch (e) { json = null }
-    try { if (json !== null) { formData = new FormData(); Object.entries(json as JSON).forEach(([k, v]) => formData?.append(k, v)) } else throw Error() } catch (e) { formData = null }
+    try { if (text !== null) json = JSON.parse(text) as t;            else throw Error() } catch (e) { json = null }
+    try { if (text !== null && formRegex.test(text)) {
+      formData = Object.fromEntries(text.split("&").map((e) => e.split("=")));
+    } else throw Error(); } catch (e) { formData = null }
 
     return {
       ok: res.ok,
@@ -168,18 +173,18 @@ export class RequestHelper {
   }
 
   async post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    return await this.sendRequest<t>("GET", path, body, customHeader);
+    return await this.sendRequest<t>("POST", path, body, customHeader);
   }
 
-  async put<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    return await this.sendRequest<t>("PUT", path, undefined, customHeader);
+  async put<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+    return await this.sendRequest<t>("PUT", path, body, customHeader);
   }
 
-  async patch<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    return await this.sendRequest<t>("PATCH", path, undefined, customHeader);
+  async patch<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+    return await this.sendRequest<t>("PATCH", path, body, customHeader);
   }
 
-  async delete<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    return await this.sendRequest<t>("DELETE", path, undefined, customHeader);
+  async delete<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+    return await this.sendRequest<t>("DELETE", path, body, customHeader);
   }
 }
