@@ -1,18 +1,21 @@
 import {
   ContentType,
-  HttpAuthorize, HttpAuthorizeSchema,
+  HttpAuthorize, HttpAuthorizeSchema, HttpCookie,
   HttpHeader,
   HttpHeaderObject,
   HttpRequestBody,
   HttpRequestMethod,
   HttpResponse
 } from "./types";
+import {CookieBuilder} from "./CookieBuilder";
+
 
 export class RequestHelper {
   private BASE_URL: string;
 
   private CONTENT_TYPE: ContentType | string;
   private AUTHORIZATION: HttpAuthorize | null;
+  private COOKIE: CookieBuilder;
 
   private CUSTOM_HEADERS: Headers;
 
@@ -21,6 +24,7 @@ export class RequestHelper {
 
     this.CONTENT_TYPE = "";
     this.AUTHORIZATION = null;
+    this.COOKIE = new CookieBuilder();
 
     this.CUSTOM_HEADERS = new Headers();
   }
@@ -42,6 +46,10 @@ export class RequestHelper {
     return this.AUTHORIZATION;
   }
 
+  getCookie(): HttpCookie {
+    return this.COOKIE.getCookies();
+  }
+
   // SETTER ===============================================================================
   setBaseUrl(baseURL: string): RequestHelper  {
     this.BASE_URL = baseURL;
@@ -53,7 +61,7 @@ export class RequestHelper {
     return this;
   }
 
-  addHeader(key: HttpHeader, value: string): RequestHelper {
+  addHeader(key: HttpHeader | string, value: string): RequestHelper {
     this.CUSTOM_HEADERS.set(key, value);
     return this;
   }
@@ -102,20 +110,36 @@ export class RequestHelper {
     return this;
   }
 
+  setCookie(key: string, value: string): RequestHelper {
+    this.COOKIE.setCookie(key, value);
+    return this;
+  }
+
+  delCookie(key: string): RequestHelper {
+    this.COOKIE.delCookie(key);
+    return this;
+  }
+
+  resetCookie(): RequestHelper {
+    this.COOKIE.resetCookie();
+    return this;
+  }
+
   // EXECUTES =============================================================================
   async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     // build url
     let url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
     if (url.endsWith("/")) url = url.substring(0, url.length-1);
 
-    const requestContentType: ContentType | string = this.CONTENT_TYPE ? this.CONTENT_TYPE : "application/json";
-
     // header priority (one-time > custom setters(auth, content-type..) > fixed headers)
     // merge fixed headers(permanent header) and specific headers(one-time header)
     const requestHeader = new Headers(this.getHeaders());
-    requestHeader.set("Content-Type", requestContentType);
+    if (this.CONTENT_TYPE)
+      requestHeader.set("Content-Type", this.CONTENT_TYPE);
     if (this.AUTHORIZATION)
       requestHeader.set("Authorization", `${this.AUTHORIZATION.schema} ${this.AUTHORIZATION.value}`);
+    if (Object.keys(this.COOKIE.getCookies()).length)
+      requestHeader.set("Cookie", this.COOKIE.build());
     if (customHeader) {
       Object.entries(customHeader).forEach(([k, v]) => {
         requestHeader.set(k, v);
@@ -124,7 +148,7 @@ export class RequestHelper {
 
     let requestBody = "";
     if (body && typeof body !== "string") {
-      switch (requestContentType) {
+      switch (this.CONTENT_TYPE) {
         case "application/json":
           requestBody = JSON.stringify(body);
           break;
@@ -137,9 +161,9 @@ export class RequestHelper {
     }else if (body) requestBody = body;
 
     const res = await fetch(url, {
-      method,
+      method: method,
       headers: requestHeader,
-      body: requestBody ? requestBody : undefined,
+      body: requestBody || undefined,
       cache: "no-cache"
     });
 

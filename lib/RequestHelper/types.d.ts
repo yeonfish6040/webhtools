@@ -21,7 +21,7 @@ export type HttpRequestBody = {
 export type HttpCookie = {
     [key: string]: string;
 };
-export interface HttpResponse<t> {
+export interface HttpResponse<t = any> {
     ok: boolean;
     url: string;
     headers: Headers;

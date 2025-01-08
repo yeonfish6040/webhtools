@@ -5,10 +5,10 @@ import {ProblemHelperSpec} from "./ProblemHelper.spec";
 
 const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec(), new ProblemHelperSpec()];
 
-(async () => {
-  let total = targetTests.length;
-  let success = 0;
-  let fail = 0;
+let total = targetTests.length;
+let success = 0;
+let fail = 0;
+async function runTest() {
   const tests = targetTests.map(async (testClass) => {
     try {
       const testResult: any = await testClass.run();
@@ -29,7 +29,10 @@ const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec(),
   console.log(`Test passed ${success} of ${total}. ${fail} failed.`);
   if (total === success) {
     console.log("All test has executed successfully.");
-  }else {
+  } else {
     throw Error("Test failed.");
   }
-})();
+}
+
+runTest().then(() => {
+})

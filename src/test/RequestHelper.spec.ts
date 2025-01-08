@@ -4,7 +4,7 @@ import {Tester} from "./types";
 export class RequestHelperSpec implements Tester {
   name = "RequestHelperSpec";
 
-  expected = `["The Shawshank Redemption",true]`;
+  expected = `["The Shawshank Redemption",true,"emilys"]`;
 
   async run(): Promise<any> {
     const results = [];
@@ -25,6 +25,23 @@ export class RequestHelperSpec implements Tester {
       user: string
     }>("/");
 
-    return JSON.stringify([res1.json?.movie, res2.json?.authenticated]);
+    const rh3 = new RequestHelper("https://dummyjson.com/")
+      .setContentType("application/json");
+    const res3 = await rh3.post<{
+      accessToken: string,
+      refreshToken: string,
+      id: number,
+      username: string,
+      email: string,
+      firstName: string,
+      lastName: string,
+      gender: string,
+      image: string,
+    }>("/auth/login", {
+      username: "emilys",
+      password: "emilyspass",
+    });
+
+    return JSON.stringify([res1.json?.movie, res2.json?.authenticated, res3.json?.username]);
   }
 }

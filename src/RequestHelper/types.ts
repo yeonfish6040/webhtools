@@ -116,7 +116,7 @@ export type HttpRequestBody = { [key: string]: string | number | boolean };
 
 export type HttpCookie = { [key: string]: string };
 
-export interface HttpResponse<t> {
+export interface HttpResponse<t = any> {
   ok: boolean;
   url: string;
   headers: Headers;

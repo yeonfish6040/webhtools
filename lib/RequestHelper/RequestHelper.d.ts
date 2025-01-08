@@ -1,17 +1,19 @@
-import { ContentType, HttpAuthorize, HttpAuthorizeSchema, HttpHeader, HttpHeaderObject, HttpRequestBody, HttpRequestMethod, HttpResponse } from "./types";
+import { ContentType, HttpAuthorize, HttpAuthorizeSchema, HttpCookie, HttpHeader, HttpHeaderObject, HttpRequestBody, HttpRequestMethod, HttpResponse } from "./types";
 export declare class RequestHelper {
     private BASE_URL;
     private CONTENT_TYPE;
     private AUTHORIZATION;
+    private COOKIE;
     private CUSTOM_HEADERS;
     constructor(baseURL: string);
     getBaseURL(): string;
     getContentType(): ContentType | string;
     getHeaders(): HttpHeaderObject;
     getAuth(): HttpAuthorize | null;
+    getCookie(): HttpCookie;
     setBaseUrl(baseURL: string): RequestHelper;
     setContentType(contentType: ContentType | string): RequestHelper;
-    addHeader(key: HttpHeader, value: string): RequestHelper;
+    addHeader(key: HttpHeader | string, value: string): RequestHelper;
     delHeader(key: HttpHeader): RequestHelper;
     setHeader(obj: HttpHeaderObject): RequestHelper;
     resetHeader(): RequestHelper;
@@ -19,6 +21,9 @@ export declare class RequestHelper {
     setBasicAuth(username: string, password: string): RequestHelper;
     setBearerAuth(token: string): void;
     resetAuth(): RequestHelper;
+    setCookie(key: string, value: string): RequestHelper;
+    delCookie(key: string): RequestHelper;
+    resetCookie(): RequestHelper;
     sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     get<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
