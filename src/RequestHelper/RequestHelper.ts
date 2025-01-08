@@ -129,11 +129,12 @@ export class RequestHelper {
   async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     // build url
     let url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
-    if (url.endsWith("/")) url = url.substring(0, url.length-1);
+    if (path === "" && url.endsWith("/")) url = url.substring(0, url.length-1);
 
     // header priority (one-time > custom setters(auth, content-type..) > fixed headers)
     // merge fixed headers(permanent header) and specific headers(one-time header)
     const requestHeader = new Headers(this.getHeaders());
+    requestHeader.set("Cache-Control", "no-cache");
     if (this.CONTENT_TYPE)
       requestHeader.set("Content-Type", this.CONTENT_TYPE);
     if (this.AUTHORIZATION)
@@ -161,10 +162,10 @@ export class RequestHelper {
     }else if (body) requestBody = body;
 
     const res = await fetch(url, {
-      method: method,
+      credentials: "include",
       headers: requestHeader,
+      method: method,
       body: requestBody || undefined,
-      cache: "no-cache"
     });
 
     let bytes: Uint8Array | null;
@@ -198,6 +199,10 @@ export class RequestHelper {
 
   async post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("POST", path, body, customHeader);
+  }
+
+  async ihatepost(url: string, option: RequestInit) {
+    return await fetch(url, option);
   }
 
   async put<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {

@@ -23,7 +23,7 @@ export class RequestHelperSpec implements Tester {
     const res2 = await rh2.get<{
       authenticated: boolean,
       user: string
-    }>("/");
+    }>("");
 
     const rh3 = new RequestHelper("https://dummyjson.com/")
       .setContentType("application/json");

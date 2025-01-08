@@ -10,7 +10,7 @@ export class ProblemHelperSpec implements Tester {
     const ph = await (new ProblemHelper(927)).init();
     await ph.openVM();
     console.log(ph.getURL());
-    // await ph.closeVM();
+    await ph.closeVM();
 
     return "";
   }

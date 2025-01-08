@@ -61,7 +61,7 @@ export class ProblemHelper {
       this.vmHost = res.json.host;
       this.vmPort = res.json.port_mappings[0][1];
     }else {
-      const res1 = await this.rh.sendRequest("POST", "/live");
+      const res1 = await this.rh.post("/live/");
       console.log(res1)
       if (res1.status !== 201) throw Error("Cannot open vm");
       console.log("waiting for vm open...");
