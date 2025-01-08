@@ -112,7 +112,7 @@ export type HttpHeaderObject = { [key: HttpHeader | string]: string };
 export const HttpRequestMethodValues = ["GET", "HEAD", "POST", "PUT", "DELETE", "CONNECT", "OPTIONS", "TRACE", "PATCH"] as const;
 export type HttpRequestMethod = (typeof HttpRequestMethodValues)[number];
 
-export type HttpRequestBody = { [key: string]: string | number | boolean };
+export type HttpRequestBody = { [key: string]: any };
 
 export type HttpCookie = { [key: string]: string };
 
