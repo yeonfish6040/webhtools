@@ -105,6 +105,13 @@ export class RequestHelper {
     }
   }
 
+  setTokenAuth(token: string) {
+    this.AUTHORIZATION = {
+      schema: "Token",
+      value: token,
+    }
+  }
+
   resetAuth(): RequestHelper {
     this.AUTHORIZATION = null;
     return this;
