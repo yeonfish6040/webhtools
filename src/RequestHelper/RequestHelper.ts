@@ -154,7 +154,7 @@ export class RequestHelper {
       });
     }
 
-    let requestBody = "";
+    let requestBody: any;
     if (body && typeof body !== "string") {
       switch (this.CONTENT_TYPE) {
         case "application/json":
@@ -163,6 +163,12 @@ export class RequestHelper {
         case "application/x-www-form-urlencoded":
           requestBody = Object.entries(body).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
           break;
+        case "multipart/form-data":
+          const formData = new FormData();
+          Object.entries(body).forEach(([k, v]) => {
+            formData.append(k, v);
+          });
+          requestBody = formData;
         default:
           requestBody = body.toString();
       }
