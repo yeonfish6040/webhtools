@@ -20,6 +20,7 @@ export declare class RequestHelper {
     setAuth(schema: HttpAuthorizeSchema, value: string): RequestHelper;
     setBasicAuth(username: string, password: string): RequestHelper;
     setBearerAuth(token: string): void;
+    setTokenAuth(token: string): void;
     resetAuth(): RequestHelper;
     setCookie(key: string, value: string): RequestHelper;
     delCookie(key: string): RequestHelper;
