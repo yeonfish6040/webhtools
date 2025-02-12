@@ -164,7 +164,12 @@ export class RequestHelper {
           requestBody = Object.entries(body).map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
           break;
         case "multipart/form-data":
-          requestBody = body;
+          const formData = new FormData();
+          Object.entries(body).forEach(([k, v]) => {
+            formData.append(k, v);
+          });
+          requestBody = formData;
+          break;
         default:
           requestBody = body.toString();
       }
