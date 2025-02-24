@@ -25,7 +25,7 @@ export declare class RequestHelper {
     setCookie(key: string, value: string): RequestHelper;
     delCookie(key: string): RequestHelper;
     resetCookie(): RequestHelper;
-    sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
+    sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null, outputFile?: string): Promise<HttpResponse<t>>;
     get<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     ihatepost(url: string, option: RequestInit): Promise<Response>;
