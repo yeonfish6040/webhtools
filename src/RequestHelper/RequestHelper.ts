@@ -248,8 +248,8 @@ export class RequestHelper {
     }
   }
 
-  async get<t = any>(path: string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
-    return await this.sendRequest<t>("GET", path, undefined, customHeader);
+  async get<t = any>(path: string, customHeader?: HttpHeaderObject | null, outputFile?: string): Promise<HttpResponse<t>> {
+    return await this.sendRequest<t>("GET", path, undefined, customHeader, outputFile);
   }
 
   async post<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
