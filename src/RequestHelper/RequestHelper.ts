@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import {
   ContentType,
   HttpAuthorize, HttpAuthorizeSchema, HttpCookie,
@@ -8,7 +10,16 @@ import {
   HttpResponse
 } from "./types";
 import {CookieBuilder} from "./CookieBuilder";
+import {Readable} from "node:stream";
 
+const streamToFile = (readableStream: any, writableStream: any) => {
+  return new Promise((resolve, reject) => {
+    readableStream.pipe(writableStream);
+
+    writableStream.on('finish', resolve);
+    writableStream.on('error', reject);
+  });
+};
 
 export class RequestHelper {
   private BASE_URL: string;
@@ -133,7 +144,7 @@ export class RequestHelper {
   }
 
   // EXECUTES =============================================================================
-  async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
+  async sendRequest<t = any>(method: HttpRequestMethod | string, path: string, body?: HttpRequestBody | string, customHeader?: HttpHeaderObject | null, outputFile?: string): Promise<HttpResponse<t>> {
     // build url
     let url = `${this.BASE_URL.endsWith("/") ? this.BASE_URL.substring(0, this.BASE_URL.length-1) : this.BASE_URL}/${path.startsWith("/") ? path.substring(1, path.length) : path}`;
     if (path === "" && url.endsWith("/")) url = url.substring(0, url.length-1);
@@ -178,28 +189,62 @@ export class RequestHelper {
       body: requestBody || undefined,
     });
 
-    let bytes: Uint8Array | null;
-    let text: string | null;
-    let json: t | null;
-    let formData: FormData | null;
-    const formRegex = /((?<group>(?<key>[^=&]+)=(?<value>[^=&]+))&?)/g
-    try { bytes = await res.bytes(); } catch (e) { console.error(e); bytes = null }
-    try { if (bytes !== null) text = new TextDecoder().decode(bytes); else throw Error() } catch (e) { text = null }
-    try { if (text !== null) json = JSON.parse(text) as t;            else throw Error() } catch (e) { json = null }
-    try { if (text !== null && formRegex.test(text)) {
-      formData = Object.fromEntries(text.split("&").map((e) => e.split("=")));
-    } else throw Error(); } catch (e) { formData = null }
+    if (outputFile) {
+      const stream = fs.createWriteStream(outputFile);
+      await streamToFile(res.body, stream);
 
-    return {
-      ok: res.ok,
-      url: res.url,
-      headers: res.headers,
-      status: res.status,
-      statusText: res.statusText,
-      bytes,
-      text,
-      json,
-      formData,
+      return {
+        ok: res.ok,
+        url: res.url,
+        headers: res.headers,
+        status: res.status,
+        statusText: res.statusText,
+        bytes: null,
+        text: null,
+        json: null,
+        formData: null,
+      }
+    }else {
+      let bytes: Uint8Array | null;
+      let text: string | null;
+      let json: t | null;
+      let formData: FormData | null;
+      const formRegex = /((?<group>(?<key>[^=&]+)=(?<value>[^=&]+))&?)/g
+      try {
+        bytes = await res.bytes();
+      } catch (e) {
+        console.error(e);
+        bytes = null
+      }
+      try {
+        if (bytes !== null) text = new TextDecoder().decode(bytes); else throw Error()
+      } catch (e) {
+        text = null
+      }
+      try {
+        if (text !== null) json = JSON.parse(text) as t; else throw Error()
+      } catch (e) {
+        json = null
+      }
+      try {
+        if (text !== null && formRegex.test(text)) {
+          formData = Object.fromEntries(text.split("&").map((e) => e.split("=")));
+        } else throw Error();
+      } catch (e) {
+        formData = null
+      }
+
+      return {
+        ok: res.ok,
+        url: res.url,
+        headers: res.headers,
+        status: res.status,
+        statusText: res.statusText,
+        bytes,
+        text,
+        json,
+        formData,
+      }
     }
   }
 
