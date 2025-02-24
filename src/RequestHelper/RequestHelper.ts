@@ -183,7 +183,7 @@ export class RequestHelper {
     let json: t | null;
     let formData: FormData | null;
     const formRegex = /((?<group>(?<key>[^=&]+)=(?<value>[^=&]+))&?)/g
-    try { bytes = await res.bytes(); } catch (e) { bytes = null }
+    try { bytes = await res.bytes(); } catch (e) { console.error(e); bytes = null }
     try { if (bytes !== null) text = new TextDecoder().decode(bytes); else throw Error() } catch (e) { text = null }
     try { if (text !== null) json = JSON.parse(text) as t;            else throw Error() } catch (e) { json = null }
     try { if (text !== null && formRegex.test(text)) {
