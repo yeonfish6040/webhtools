@@ -14,7 +14,7 @@ import {Readable} from "node:stream";
 
 const streamToFile = (readableStream: any, writableStream: any) => {
   return new Promise((resolve, reject) => {
-    readableStream.pipe(writableStream);
+    Readable.fromWeb(readableStream).pipe(writableStream);
 
     writableStream.on('finish', resolve);
     writableStream.on('error', reject);
