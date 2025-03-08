@@ -1,6 +1,6 @@
 {
   "name": "webhtools",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "webhacking tools for hackers",
   "main": "lib/index.js",
   "scripts": {
