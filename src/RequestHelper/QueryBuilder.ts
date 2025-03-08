@@ -5,18 +5,14 @@ export class QueryBuilder extends String {
           .map((key): string => {
             const newKey = parentKey ? `${parentKey}[${key}]` : key;
             if (typeof obj[key] === "object" && obj[key] !== null) {
-              return build(obj[key], newKey);
+              return build(obj[key], newKey); // Recursively build nested objects
             } else {
-              return `${newKey}=${encodeURIComponent(obj[key])}`;
+              return `${newKey}=${encodeURIComponent(obj[key])}`; // Encode values
             }
           })
           .join('&');
-    }
+    };
 
-    const query =  Object.keys(obj)
-        .map(key => build(obj[key], key))
-        .join('&');
-
-    super(query);
+    super(build(obj, ''));
   }
 }
