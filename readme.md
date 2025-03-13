@@ -34,6 +34,8 @@ const ph = await new ProblemHelper(927).init();
 await ph.openVM();
 
 const rh = new RequestHelper(ph.getURL());
+rh.setContentType("application/json");
+rh.setBearerAuth(tokenRes.json.token);
 const res = await rh.get("/");
 console.log(res.ok);
 console.log(res.status);
@@ -46,6 +48,7 @@ console.log(res.formData);
 // await ph.closeVM();
 ```
 
+#### Query Builder
 ```js
 import { RequestHelper, QueryBuilder } from "webhtools";
 
@@ -62,5 +65,5 @@ const data = {
   }
 }
 await client.get('/?'+new QueryBuilder(data));
-console.log(new QueryBuilder(data))
+console.log(new QueryBuilder(data))₩
 ```
