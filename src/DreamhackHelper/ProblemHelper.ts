@@ -51,7 +51,7 @@ export class ProblemHelper {
     return this;
   }
 
-  async openVM(): Promise<ProblemHelper> {
+  async openVM(wait_for_init = true): Promise<ProblemHelper> {
     if (this.recursionProtect > 2) {
       this.recursionProtect = 0;
       return this;
@@ -63,7 +63,6 @@ export class ProblemHelper {
     }else {
       const res1 = await this.rh.post("/live/");
       if (res1.status !== 201) throw Error("Cannot open vm");
-      console.log("waiting for vm open...");
 
       let vmOpened = false;
       while (!vmOpened) {
@@ -71,11 +70,21 @@ export class ProblemHelper {
         if (res2.json && res2.json.id) vmOpened = true;
         this.sleep(2000);
       }
-      console.log("vm opened.");
 
       this.recursionProtect++;
       await this.openVM();
     }
+
+    if (wait_for_init) {
+      let vmOpened = false;
+      while (!vmOpened) {
+        try {
+            await fetch(this.getURL()!);
+          vmOpened = true;
+        } catch (e) {}
+      }
+    }
+
     return this;
   }
 
