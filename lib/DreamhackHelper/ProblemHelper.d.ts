@@ -9,7 +9,7 @@ export declare class ProblemHelper {
     private vmTerminateTime;
     constructor(problemId: number);
     init(): Promise<ProblemHelper>;
-    openVM(): Promise<ProblemHelper>;
+    openVM(wait_for_init?: boolean): Promise<ProblemHelper>;
     getURL(): string | undefined;
     getHost(): string | undefined;
     getPort(): string | undefined;
