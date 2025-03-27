@@ -5,7 +5,7 @@ import {read} from "read";
 
 import * as base85 from "base85";
 
-import {Config, ConfigKey, User} from "./types";
+import {Config, ConfigKey, FlagResult, User} from "./types";
 import {RequestHelper} from "../RequestHelper";
 
 export class ProblemHelper {
@@ -28,6 +28,7 @@ export class ProblemHelper {
     this.recursionProtect = 0;
 
     this.rh = new RequestHelper(`https://dreamhack.io/api/v1/wargame/challenges/${this.problemId}/`);
+    this.rh.setContentType("application/json");
   }
 
   async init(): Promise<ProblemHelper> {
@@ -51,10 +52,10 @@ export class ProblemHelper {
     return this;
   }
 
-  async openVM(wait_for_init = true): Promise<ProblemHelper> {
+  async openVM(wait_for_init = true): Promise<string | undefined> {
     if (this.recursionProtect > 2) {
       this.recursionProtect = 0;
-      return this;
+      return undefined;
     }
     const res = await this.rh.get("/live");
     if (res.json && res.json.id) {
@@ -79,13 +80,13 @@ export class ProblemHelper {
       let vmOpened = false;
       while (!vmOpened) {
         try {
-            await fetch(this.getURL()!);
+          await fetch(this.getURL()!);
           vmOpened = true;
         } catch (e) {}
       }
     }
 
-    return this;
+    return this.getURL();
   }
 
   getURL(): string | undefined {
@@ -106,6 +107,16 @@ export class ProblemHelper {
     this.vmPort = undefined;
     await this.rh.delete("/live");
     return this;
+  }
+
+  async sendFlag(flag: string): Promise<FlagResult> {
+    const data = await this.rh.post("/auth/", { flag: flag });
+    if (data.ok)
+      return "Success";
+    else if (data.json.flag[0] === "유저가 이미 인증되었습니다.")
+      return "Already";
+    else
+      return "Fail";
   }
 
   private fetchConfig(): void {

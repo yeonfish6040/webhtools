@@ -12,3 +12,6 @@ export interface User {
 export const ConfigKeyValues = ["user", "sessionId", "csrfToken"] as const;
 export type ConfigKey = (typeof ConfigKeyValues)[number];
 export type Config = { [key in ConfigKey | string]: any };
+
+export const FlagResultValues = ["Success", "Fail", "Already"] as const;
+export type FlagResult = (typeof FlagResultValues)[number];
