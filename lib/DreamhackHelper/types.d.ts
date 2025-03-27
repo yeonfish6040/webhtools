@@ -12,3 +12,5 @@ export type ConfigKey = (typeof ConfigKeyValues)[number];
 export type Config = {
     [key in ConfigKey | string]: any;
 };
+export declare const FlagResultValues: readonly ["Success", "Fail", "Already"];
+export type FlagResult = (typeof FlagResultValues)[number];
