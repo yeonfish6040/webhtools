@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "base85": "^3.1.0",
+    "ngrok": "^5.0.0-beta.2",
     "read": "^4.0.0"
   }
 }

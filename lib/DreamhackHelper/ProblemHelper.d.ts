@@ -3,7 +3,7 @@ export declare class ProblemHelper {
     private recursionProtect;
     private isInitCalled;
     private readonly problemId;
-    private config;
+    private readonly config;
     private rh;
     private vmHost;
     private vmPort;
@@ -16,8 +16,6 @@ export declare class ProblemHelper {
     getPort(): string | undefined;
     closeVM(): Promise<ProblemHelper>;
     sendFlag(flag: string): Promise<FlagResult>;
-    private fetchConfig;
-    private setConfig;
     private checkLogin;
     private askCredential;
     private checkInit;

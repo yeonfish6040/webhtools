@@ -1,19 +1,17 @@
-import * as os from "os";
-import * as fs from "fs";
-import * as path from "path";
 import {read} from "read";
 
 import * as base85 from "base85";
 
-import {Config, ConfigKey, FlagResult, User} from "./types";
+import {FlagResult, User} from "./types";
 import {RequestHelper} from "../RequestHelper";
+import {ConfigManager} from "../utils/config";
 
 export class ProblemHelper {
   private recursionProtect: number;
   private isInitCalled: boolean;
 
   private readonly problemId: number;
-  private config: Config | undefined;
+  private readonly config: ConfigManager;
 
   private rh: RequestHelper;
 
@@ -29,23 +27,23 @@ export class ProblemHelper {
 
     this.rh = new RequestHelper(`https://dreamhack.io/api/v1/wargame/challenges/${this.problemId}/`);
     this.rh.setContentType("application/json");
+
+    this.config = new ConfigManager();
   }
 
   async init(): Promise<ProblemHelper> {
     this.isInitCalled = true;
 
-    this.fetchConfig();
-
     let isLogined = await this.checkLogin();
     while (!isLogined) {
       const credential = await this.askCredential();
-      this.setConfig("user", this.encodeBase85(`${credential.email}:${credential.password}`));
+      this.config.set("user", this.encodeBase85(`${credential.email}:${credential.password}`));
 
       isLogined = await this.checkLogin();
     }
-    this.rh.setCookie("sessionid", this.config!.sessionId);
-    this.rh.setCookie("csrf_token", this.config!.csrfToken);
-    this.rh.addHeader("X-CSRFTOKEN", this.config!.csrfToken)
+    this.rh.setCookie("sessionid", this.config.get("sessionId"));
+    this.rh.setCookie("csrf_token", this.config.get("csrfToken"));
+    this.rh.addHeader("X-CSRFTOKEN", this.config.get("csrfToken"))
     this.rh.addHeader("Referer", `https://dreamhack.io/wargame/challenges/${this.problemId}`);
     this.rh.addHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0");
 
@@ -119,43 +117,17 @@ export class ProblemHelper {
       return "Fail";
   }
 
-  private fetchConfig(): void {
-    const configPath = path.join(os.homedir(), ".webhtools");
-    const isConfigFileExists = fs.existsSync(configPath);
-    if (isConfigFileExists) {
-      try {
-        JSON.parse(fs.readFileSync(configPath).toString());
-      } catch (e) {
-        fs.writeFileSync(configPath, "{}");
-      }
-    }else {
-      fs.writeFileSync(configPath, "{}");
-    }
-
-    this.config = JSON.parse(fs.readFileSync(configPath).toString());
-  }
-
-  private setConfig(key: ConfigKey | string, value: any) {
-    this.checkInit();
-
-    this.config![key] = value;
-
-    const configPath = path.join(os.homedir(), ".webhtools");
-    fs.writeFileSync(configPath, JSON.stringify(this.config));
-    this.fetchConfig();
-  }
-
   private async checkLogin() {
     this.checkInit();
 
-    if (this.config!.sessionId && this.config!.csrfToken) {
-      const res = await fetch("https://dreamhack.io/login", { headers: { "Cookie": `sessionid=${this.config!.sessionId}` } });
+    if (this.config.get("csrfToken") && this.config.get("csrfToken")) {
+      const res = await fetch("https://dreamhack.io/login", { headers: { "Cookie": `sessionid=${this.config.get("sessionId")}` } });
 
       if ((await res.text()).indexOf(" <div class=\"email\" ") !== -1)
         return true;
     }
-    if (this.config!.user) {
-      const [email, password] = this.decodeBase85(this.config!.user).split(":");
+    if (this.config.get("user")) {
+      const [email, password] = this.decodeBase85(this.config.get("user")).split(":");
       const res = await fetch("https://dreamhack.io/api/v1/auth/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -165,8 +137,8 @@ export class ProblemHelper {
       if (res.ok) {
         const sessionId = res.headers.getSetCookie().find((e) => e.startsWith("sessionid"))!.split(";")[0].split("=")[1];
         const csrfToken = res.headers.getSetCookie().find((e) => e.startsWith("csrf_token"))!.split(";")[0].split("=")[1];
-        this.setConfig("sessionId", sessionId);
-        this.setConfig("csrfToken", csrfToken);
+        this.config.set("sessionId", sessionId);
+        this.config.set("csrfToken", csrfToken);
 
         return true;
       }

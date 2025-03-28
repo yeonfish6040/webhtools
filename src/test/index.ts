@@ -2,8 +2,9 @@ import {Tester} from "./types";
 import {CookieBuilderSpec} from "./CookieBuilder.spec";
 import {RequestHelperSpec} from "./RequestHelper.spec";
 import {ProblemHelperSpec} from "./ProblemHelper.spec";
+import {WebhookSpec} from "./Webhook.spec";
 
-const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec(), new ProblemHelperSpec()];
+const targetTests: Tester[] = [new CookieBuilderSpec(), new RequestHelperSpec(), new ProblemHelperSpec(), new WebhookSpec()];
 
 let total = targetTests.length;
 let success = 0;
@@ -29,6 +30,7 @@ async function runTest() {
   console.log(`Test passed ${success} of ${total}. ${fail} failed.`);
   if (total === success) {
     console.log("All test has executed successfully.");
+    process.exit();
   } else {
     throw Error("Test failed.");
   }
