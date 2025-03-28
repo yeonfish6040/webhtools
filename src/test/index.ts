@@ -15,7 +15,7 @@ async function runTest() {
       const testResult: any = await testClass.run();
       if (testResult !== testClass.expected) {
         fail++;
-        throw Error(`Test failed: ${testClass.name}\nResult: ${testResult}`);
+        throw Error(`Test failed: ${testClass.name}\nExpected ${testClass.expected}\nbut got ${testResult}`);
       } else {
         success++;
         console.log(`Test passed: ${testClass.name}`);
