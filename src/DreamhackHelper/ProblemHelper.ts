@@ -51,6 +51,8 @@ export class ProblemHelper {
   }
 
   async openVM(wait_for_init = true): Promise<string | undefined> {
+    await this.checkInit();
+
     if (this.recursionProtect > 2) {
       this.recursionProtect = 0;
       return undefined;
@@ -108,6 +110,8 @@ export class ProblemHelper {
   }
 
   async sendFlag(flag: string): Promise<FlagResult> {
+    await this.checkInit();
+
     const data = await this.rh.post("/auth/", { flag: flag });
     if (data.ok)
       return "Success";
@@ -118,7 +122,7 @@ export class ProblemHelper {
   }
 
   private async checkLogin() {
-    this.checkInit();
+    await this.checkInit();
 
     if (this.config.get("csrfToken") && this.config.get("csrfToken")) {
       const res = await fetch("https://dreamhack.io/login", { headers: { "Cookie": `sessionid=${this.config.get("sessionId")}` } });
@@ -157,8 +161,8 @@ export class ProblemHelper {
     return { email, password };
   }
 
-  private checkInit() {
-    if (!this.isInitCalled || !this.config) throw new Error("This class cannot be used without init()");
+  private async checkInit() {
+    if (!this.isInitCalled || !this.config) await this.init();
   }
 
   private encodeBase85(str: string): string {
