@@ -74,6 +74,7 @@ export class ProblemHelper {
       while (!vmOpened) {
         try {
           await fetch(this.getURL()!);
+          this.sleep(1000);
           vmOpened = true;
         } catch (e) {}
       }
