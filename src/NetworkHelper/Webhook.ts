@@ -3,6 +3,8 @@ import * as http from "node:http";
 import { Server } from "node:http";
 
 import * as ngrok from "ngrok";
+// @ts-ignore
+import * as parseRequest from "parse-request";
 
 import {Listener} from "./types";
 
@@ -32,7 +34,20 @@ export class Webhook {
       const parsedUrl = url.parse(req.url);
       const path = parsedUrl.path || "";
 
-      const withBody = { ...req, body: Buffer.concat(buff) };
+      const headers = Object.fromEntries(
+          req.rawHeaders.reduce((resultArray: string[][], item: string, index: number) => {
+            const chunkIndex = Math.floor(index/2)
+
+            if (!resultArray[chunkIndex]) {
+              resultArray[chunkIndex] = []
+            }
+
+            resultArray[chunkIndex].push(item)
+
+            return resultArray
+          }, [])
+      );
+      const withBody = { ...req, body: Buffer.concat(buff), headers: headers };
 
       let status;
       if (this.listeners[path])
