@@ -50,7 +50,7 @@ export class ProblemHelper {
     return this;
   }
 
-  async openVM(wait_for_init = true): Promise<string | undefined> {
+  async openVM(wait_for_init = true): Promise<string> {
     await this.checkInit();
 
     const res = await this.rh.get("/live");
@@ -85,8 +85,8 @@ export class ProblemHelper {
     return this.getURL();
   }
 
-  getURL(): string | undefined {
-    if (!this.vmHost || !this.vmPort) return undefined;
+  getURL(): string {
+    if (!this.vmHost || !this.vmPort) throw new Error("Vm not opened.");
     return `http://${this.vmHost}:${this.vmPort}/`;
   }
 

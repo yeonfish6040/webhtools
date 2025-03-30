@@ -10,8 +10,8 @@ export declare class ProblemHelper {
     private vmTerminateTime;
     constructor(problemId: number);
     init(): Promise<ProblemHelper>;
-    openVM(wait_for_init?: boolean): Promise<string | undefined>;
-    getURL(): string | undefined;
+    openVM(wait_for_init?: boolean): Promise<string>;
+    getURL(): string;
     getHost(): string | undefined;
     getPort(): string | undefined;
     closeVM(): Promise<ProblemHelper>;

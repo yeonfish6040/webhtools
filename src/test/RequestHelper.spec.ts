@@ -4,7 +4,7 @@ import {Tester} from "./types";
 export class RequestHelperSpec implements Tester {
   name = "RequestHelperSpec";
 
-  expected = `[true,"emilys"]`;
+  expected = `[true,"emilys",true]`;
 
   async run(): Promise<any> {
     const results = [];
@@ -33,6 +33,9 @@ export class RequestHelperSpec implements Tester {
       password: "emilyspass",
     });
 
-    return JSON.stringify([res2.json?.authenticated, res3.json?.username]);
+    const rh4 = await RequestHelper.from(1859);
+    const res4 = await rh4.get("/");
+
+    return JSON.stringify([res2.json?.authenticated, res3.json?.username, res4.ok]);
   }
 }

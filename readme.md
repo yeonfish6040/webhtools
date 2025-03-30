@@ -13,7 +13,7 @@ import {ProblemHelper} from "webhtools";
 
 async function run() {
   // const ph = await new ProblemHelper(<problemId>).init();
-  const ph = await new ProblemHelper(927).init();
+  const ph = await new ProblemHelper(927);
 
   await ph.openVM();
   // exploit
@@ -30,10 +30,12 @@ At first time, you need to enter your dreamhack account info.
 ```typescript
 import {RequestHelper, ProblemHelper} from "webhtools";
 
-const ph = await new ProblemHelper(927).init();
-await ph.openVM();
+// const ph = await new ProblemHelper(927)
+//
+// const rh = new RequestHelper(await ph.openVM());
 
-const rh = new RequestHelper(ph.getURL());
+// this works well.
+const rh = await RequestHelper.from(927);
 rh.setContentType("application/json");
 rh.setBearerAuth(tokenRes.json.token);
 const res = await rh.get("/");

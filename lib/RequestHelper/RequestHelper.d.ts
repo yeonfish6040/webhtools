@@ -32,4 +32,6 @@ export declare class RequestHelper {
     put<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     patch<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     delete<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
+    /** from dreamhack problem. */
+    static from(problemId: number): Promise<RequestHelper>;
 }

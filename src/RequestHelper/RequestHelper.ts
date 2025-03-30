@@ -11,6 +11,7 @@ import {
 } from "./types";
 import {CookieBuilder} from "./CookieBuilder";
 import {Readable} from "node:stream";
+import {ProblemHelper} from "../DreamhackHelper";
 
 const streamToFile = (readableStream: any, writableStream: any) => {
   return new Promise((resolve, reject) => {
@@ -270,5 +271,10 @@ export class RequestHelper {
 
   async delete<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>> {
     return await this.sendRequest<t>("DELETE", path, body, customHeader);
+  }
+
+  /** from dreamhack problem. */
+  static async from(problemId: number) {
+    return new RequestHelper(await (new ProblemHelper(problemId)).openVM());
   }
 }
