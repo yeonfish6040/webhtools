@@ -53,12 +53,8 @@ export class ProblemHelper {
   async openVM(wait_for_init = true): Promise<string | undefined> {
     await this.checkInit();
 
-    if (this.recursionProtect > 2) {
-      this.recursionProtect = 0;
-      return undefined;
-    }
     const res = await this.rh.get("/live");
-    if (res.json && res.json.id && res.json.state !== "Running") {
+    if (res.json && res.json.id && res.json.state === "Running") {
       this.vmHost = res.json.host;
       this.vmPort = res.json.port_mappings[0][1];
     }else {
@@ -68,12 +64,9 @@ export class ProblemHelper {
       let vmOpened = false;
       while (!vmOpened) {
         const res2 = await this.rh.get("/live");
-        if (res2.json && res2.json.id) vmOpened = true;
+        if (res2.json && res2.json.id && res2.json.state === "Running") vmOpened = true;
         this.sleep(2000);
       }
-
-      this.recursionProtect++;
-      await this.openVM();
     }
 
     if (wait_for_init) {
