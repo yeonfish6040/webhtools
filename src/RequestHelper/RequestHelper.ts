@@ -31,6 +31,8 @@ export class RequestHelper {
 
   private CUSTOM_HEADERS: Headers;
 
+  problemHelper: ProblemHelper | undefined;
+
   constructor(baseURL: string) {
     this.BASE_URL = baseURL;
 
@@ -273,8 +275,16 @@ export class RequestHelper {
     return await this.sendRequest<t>("DELETE", path, body, customHeader);
   }
 
+  async setProblemHelper(problemHelper: ProblemHelper) {
+    this.problemHelper = problemHelper;
+
+    return this;
+  }
+
   /** from dreamhack problem. */
   static async from(problemId: number) {
-    return new RequestHelper(await (new ProblemHelper(problemId)).openVM());
+    const ph = new ProblemHelper(problemId);
+    const rh = new RequestHelper(await ph.openVM());
+    return await rh.setProblemHelper(ph);
   }
 }

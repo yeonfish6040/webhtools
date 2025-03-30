@@ -1,10 +1,12 @@
 import { ContentType, HttpAuthorize, HttpAuthorizeSchema, HttpCookie, HttpHeader, HttpHeaderObject, HttpRequestBody, HttpRequestMethod, HttpResponse } from "./types";
+import { ProblemHelper } from "../DreamhackHelper";
 export declare class RequestHelper {
     private BASE_URL;
     private CONTENT_TYPE;
     private AUTHORIZATION;
     private COOKIE;
     private CUSTOM_HEADERS;
+    problemHelper: ProblemHelper | undefined;
     constructor(baseURL: string);
     getBaseURL(): string;
     getContentType(): ContentType | string;
@@ -32,6 +34,7 @@ export declare class RequestHelper {
     put<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     patch<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
     delete<t = any>(path: string, body?: HttpRequestBody, customHeader?: HttpHeaderObject | null): Promise<HttpResponse<t>>;
+    setProblemHelper(problemHelper: ProblemHelper): Promise<this>;
     /** from dreamhack problem. */
     static from(problemId: number): Promise<RequestHelper>;
 }
