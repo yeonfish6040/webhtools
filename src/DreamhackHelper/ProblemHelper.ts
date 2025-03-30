@@ -67,6 +67,8 @@ export class ProblemHelper {
         if (res2.json && res2.json.id && res2.json.state === "Running") vmOpened = true;
         this.sleep(2000);
       }
+
+      return await this.openVM(wait_for_init);
     }
 
     if (wait_for_init) {
@@ -74,9 +76,9 @@ export class ProblemHelper {
       while (!vmOpened) {
         try {
           await fetch(this.getURL()!);
-          this.sleep(1000);
           vmOpened = true;
         } catch (e) {}
+        this.sleep(1000);
       }
     }
 
