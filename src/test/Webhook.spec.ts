@@ -12,7 +12,6 @@ export class WebhookSpec implements Tester {
     return await new Promise((resolve) => {
       webhook.set("/test", (req) => {
         webhook.disconnect();
-        console.log(req.headers)
         resolve(req.body.toString());
       })
 
