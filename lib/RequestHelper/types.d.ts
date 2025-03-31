@@ -31,4 +31,5 @@ export interface HttpResponse<t = any> {
     text: string | null;
     json: t | null;
     formData: FormData | null;
+    flag: (header: string) => string;
 }

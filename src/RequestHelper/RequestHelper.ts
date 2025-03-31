@@ -207,6 +207,7 @@ export class RequestHelper {
         text: null,
         json: null,
         formData: null,
+        flag: () => "",
       }
     }else {
       let bytes: Uint8Array | null;
@@ -238,6 +239,14 @@ export class RequestHelper {
         formData = null
       }
 
+      const extractFlags = (header: string) => {
+        const flagRegex = new RegExp(`${header}\{[^\}]+\}`, "g");
+
+        const matches = text!.match(flagRegex);
+
+        return matches ? matches[0] : "";
+      }
+
       return {
         ok: res.ok,
         url: res.url,
@@ -248,6 +257,7 @@ export class RequestHelper {
         text,
         json,
         formData,
+        flag: text ? extractFlags : () => "",
       }
     }
   }
