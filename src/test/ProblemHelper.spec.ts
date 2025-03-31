@@ -7,7 +7,7 @@ export class ProblemHelperSpec implements Tester {
   expected = "";
 
   async run(): Promise<any> {
-    const ph = await (new ProblemHelper(927)).init();
+    const ph = new ProblemHelper(927);
     console.log(await ph.openVM());
     await ph.closeVM();
 

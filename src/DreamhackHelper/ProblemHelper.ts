@@ -158,7 +158,7 @@ export class ProblemHelper {
   }
 
   private async checkInit() {
-    if (!this.isInitCalled || !this.config) await this.init();
+    if (!this.isInitCalled) await this.init();
   }
 
   private encodeBase85(str: string): string {
