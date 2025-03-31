@@ -8,8 +8,7 @@ export class ProblemHelperSpec implements Tester {
 
   async run(): Promise<any> {
     const ph = await (new ProblemHelper(927)).init();
-    await ph.openVM();
-    console.log(ph.getURL());
+    console.log(await ph.openVM());
     await ph.closeVM();
 
     return "";
