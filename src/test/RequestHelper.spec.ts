@@ -36,6 +36,9 @@ export class RequestHelperSpec implements Tester {
     const rh4 = await RequestHelper.from(1859);
     const res4 = await rh4.get("/");
 
+    const rh5 = new RequestHelper("https://webhook.site/f11f1553-decb-446b-8b87-a152210d4d4e");
+    const res5 = await rh5.get("/?i=hate&you=true", { hello: "fuck you" });
+
     return JSON.stringify([res2.json?.authenticated, res3.json?.username, res4.ok]);
   }
 }

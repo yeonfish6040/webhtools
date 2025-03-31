@@ -12,6 +12,7 @@ import {
 import {CookieBuilder} from "./CookieBuilder";
 import {Readable} from "node:stream";
 import {ProblemHelper} from "../DreamhackHelper";
+import {QueryBuilder} from "./QueryBuilder";
 
 const streamToFile = (readableStream: any, writableStream: any) => {
   return new Promise((resolve, reject) => {
@@ -251,7 +252,19 @@ export class RequestHelper {
     }
   }
 
-  async get<t = any>(path: string, customHeader?: HttpHeaderObject | null, outputFile?: string): Promise<HttpResponse<t>> {
+  async get<t = any>(path: string, query?: any, customHeader?: HttpHeaderObject | null, outputFile?: string): Promise<HttpResponse<t>> {
+    let queries = {};
+    if (path.indexOf("?") !== -1 && path.split("?").length >= 2) {
+      const query_in_path = path.split("?")[1].split("&").map((e) => e.split("="));
+      queries = { ...Object.fromEntries(query_in_path), ...query };
+
+      path = path.split("?")[0];
+    }else {
+      queries = { ...query };
+    }
+    if (Object.keys(queries).length >= 1) {
+      path = `${path}?${new QueryBuilder(queries)}`
+    }
     return await this.sendRequest<t>("GET", path, undefined, customHeader, outputFile);
   }
 
