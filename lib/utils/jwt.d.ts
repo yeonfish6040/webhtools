@@ -1,1 +1,2 @@
-export declare const JWT: (header: any, body: any, key?: string) => string;
+import { JWTBody, JWTHeader } from "./types";
+export declare const JWT: (header: JWTHeader, body: JWTBody, key?: string) => string;
